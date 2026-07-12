@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Ana Burger - Menú Digital & Delivery</title>
+    
+    <!-- Configuración PWA / Icono de instalación en el teléfono -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#D1261B">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="icon" type="image/png" href="logotipo.png">
+    <link rel="apple-touch-icon" href="logotipo.png">
+
+    <!-- Fuentes Profesionales -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #D1261B;       /* Rojo Fuego del logo */
+            --primary-dark: #800C11;  /* Rojo Sangría del logo */
+            --secondary: #F2AA24;     /* Amarillo Oro del pan */
+            --bg-main: #FFFFFF;       /* Fondo Blanco Puro */
+            --card-bg: #FFFFFF;       /* Fondo de las tarjetas blancas */
+            --bg-muted: #F8F9FA;      /* Fondo gris suave para contraste */
+            --border-color: #EAEAEA;  /* Bordes limpios */
+            --text-main: #1A1A1A;     /* Texto principal oscuro */
+            --text-muted: #666666;    /* Texto secundario gris */
+            --green-active: #8CC540;  /* Verde Lechuga del logo */
+            
+            /* Colores temáticos por categoría */
+            --cat-hamburguesas: #D1261B;
+            --cat-perros: #F2AA24;
+            --cat-raciones: #E67E22;
+            --cat-bebidas: #2980B9;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            scroll-behavior: smooth;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            padding-bottom: 120px; 
+            padding-top: 230px; /* Espacio para cabecera fija */
+        }
+
+        /* CABECERA FIJA SUPERIOR */
+        .fixed-header-container {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 600px;
+            z-index: 1000;
+            background: linear-gradient(180deg, rgba(255,255,255,1) 90%, rgba(255,255,255,0) 100%);
+            padding-bottom: 10px;
+        }
+
+        header {
+            color: var(--text-main);
+            text-align: center;
+            padding: 15px 15px 5px 15px;
+            display: flex;
+            flex-direction: column; 
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .logo-container {
+            width: 100%;
+            height: 120px; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .logo-container img {
+            width: 125px;  
+            height: 125px; 
+            object-fit: contain; 
+            display: block;
+            z-index: 2;
+            filter: drop-shadow(0px 4px 8px rgba(0,0,0,0.08));
+        }
+
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background-color: rgba(140, 197, 64, 0.12);
+            border: 1px solid var(--green-active);
+            color: #4B7913;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-top: 5px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--green-active);
+            border-radius: 50%;
+            display: inline-block;
+            animation: pulse-green 2s infinite;
+        }
+
+        @keyframes pulse-green {
+            0 { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(140, 197, 64, 0.5); }
+            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(140, 197, 64, 0); }
+            100% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(140, 197, 64, 0); }
+        }
+
+        /* NAVEGACIÓN DE CATEGORÍAS */
+        .categories-nav {
+            background-color: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: center; 
+            gap: 10px;
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border-color);
+            overflow-x: auto;
+            scrollbar-width: none; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        }
+
+        .categories-nav::-webkit-scrollbar {
+            display: none; 
+        }
+
+        @media (max-width: 600px) {
+            .categories-nav {
+                justify-content: flex-start; 
+            }
+        }
+
+        .cat-btn {
+            background: #F3F4F6;
+            border: 1px solid #E5E7EB;
+            color: var(--text-muted);
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+        }
+
+        .cat-btn span {
+            font-size: 1.1rem;
+        }
+
+        .cat-btn:active, .cat-btn:hover {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        .section-title {
+            margin: 35px 0 15px 0;
+            color: var(--text-main);
+            font-size: 1.35rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            scroll-margin-top: 240px; 
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .section-title::before {
+            content: '';
+            display: inline-block;
+            width: 5px;
+            height: 22px;
+            background-color: var(--primary);
+            border-radius: 4px;
+        }
+
+        /* TARJETAS DEL MENÚ */
+        .menu-item {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px;
+            margin-bottom: 14px;
+            border-radius: 18px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.04);
+        }
+
+        .menu-item:hover {
+            box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+        }
+
+        .border-hamburguesas { border-left: 5px solid var(--cat-hamburguesas); }
+        .border-perros { border-left: 5px solid var(--cat-perros); }
+        .border-raciones { border-left: 5px solid var(--cat-raciones); }
+        .border-bebidas { border-left: 5px solid var(--cat-bebidas); }
+
+        .item-info {
+            flex: 1;
+            padding-right: 15px;
+        }
+
+        .item-title-row {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+
+        .item-info h3 {
+            font-size: 1.15rem;
+            color: var(--text-main);
+            font-weight: 700;
+        }
+
+        .badge {
+            font-size: 0.65rem;
+            padding: 3px 8px;
+            border-radius: 20px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .badge-hot { background-color: var(--primary); color: white; }
+        .badge-star { background-color: var(--secondary); color: black; }
+
+        .item-info p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+
+        .price {
+            font-weight: 800;
+            color: var(--primary);
+            font-size: 1.3rem;
+        }
+
+        .item-actions {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 45px;
+        }
+
+        .btn-add-circle {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.6rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(209, 38, 27, 0.25);
+            transition: all 0.2s ease;
+        }
+
+        .btn-add-circle:active {
+            transform: scale(0.85);
+        }
+
+        .quantity-selector {
+            display: none;
+            align-items: center;
+            background-color: var(--primary);
+            border-radius: 30px;
+            padding: 4px;
+            box-shadow: 0 4px 10px rgba(209, 38, 27, 0.2);
+        }
+
+        .quantity-selector button {
+            background: white;
+            color: var(--primary);
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            font-weight: 800;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .quantity-value {
+            color: white;
+            font-weight: 800;
+            font-size: 1.1rem;
+            min-width: 35px;
+            text-align: center;
+        }
+
+        .cart-section, .form-section {
+            background: var(--bg-muted);
+            border: 1px solid var(--border-color);
+            padding: 22px;
+            border-radius: 20px;
+            margin-top: 30px;
+        }
+
+        .cart-section h2, .form-section h2 {
+            font-size: 1.25rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-main);
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .cart-item-controls button {
+            padding: 6px 14px;
+            font-weight: 800;
+            border: 1px solid #D1D5DB;
+            background-color: white;
+            color: var(--text-main);
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .cart-total {
+            text-align: right;
+            font-size: 1.4rem;
+            font-weight: 800;
+            margin-top: 20px;
+            color: var(--primary);
+        }
+
+        /* FORMULARIO */
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-main);
+        }
+
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 14px;
+            background-color: white;
+            border: 1px solid #D1D5DB;
+            border-radius: 12px;
+            color: var(--text-main);
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            border-color: var(--primary);
+        }
+
+        .btn-submit {
+            background-color: var(--green-active);
+            color: #FFFFFF;
+            border: none;
+            width: 100%;
+            padding: 18px;
+            border-radius: 14px;
+            font-size: 1.15rem;
+            font-weight: 800;
+            cursor: pointer;
+            margin-top: 15px;
+            box-shadow: 0 6px 20px rgba(140, 197, 64, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* BARRA FLOTANTE INTERACTIVA */
+        .floating-cart-bar {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translate(-50%, 150px); 
+            width: calc(100% - 40px);
+            max-width: 560px; 
+            background-color: #141414; 
+            border: 1px solid rgba(255,255,255,0.1);
+            color: white;
+            padding: 14px 22px;
+            border-radius: 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 12px 25px rgba(0,0,0,0.25);
+            z-index: 999;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+        }
+
+        .floating-cart-bar.active {
+            transform: translate(-50%, 0);
+        }
+
+        .floating-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .floating-info span {
+            font-size: 1.5rem;
+        }
+
+        .floating-btn {
+            background-color: var(--secondary);
+            color: black;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-weight: 800;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ENCABEZADO FIJO -->
+    <div class="fixed-header-container">
+        <header>
+            <div class="logo-container">
+                <img src="logotipo.png" alt="Logo ANA BURGER">
+            </div>
+            <div>
+                <div class="status">
+                    <span class="status-dot"></span>
+                    Abierto • Deliciosas y Frescas
+                </div>
+            </div>
+        </header>
+        <nav class="categories-nav" id="categories-nav"></nav>
+    </div>
+
+    <!-- CONTENIDO GENERAL -->
+    <div class="container">
+        <div id="menu-container">
+            <p style="text-align:center; padding: 40px; color: var(--text-muted);">Cargando el menú desde Google Sheets...</p>
+        </div>
+
+        <!-- SECCIÓN DE TU COMPRA -->
+        <div class="cart-section" id="seccion-carrito">
+            <h2>🛒 Tu Pedido</h2>
+            <div id="carrito-vacio" style="color: var(--text-muted); font-style: italic;">¡Aún no has agregado productos a tu combo!</div>
+            <div id="lista-carrito"></div>
+            <div class="cart-total">Total a pagar: $<span id="total-pago">0.00</span></div>
+        </div>
+
+        <!-- FORMULARIO DE ENVÍO -->
+        <div class="form-section" id="seccion-formulario">
+            <h2>📍 Datos de Entrega</h2>
+            <form id="form-pedido" onsubmit="enviarPedido(event)">
+                <div class="form-group">
+                    <label for="nombre">Nombre Completo:</label>
+                    <input type="text" id="nombre" required placeholder="Ej. Juan Pérez" onchange="guardarDatosCliente()">
+                </div>
+                <div class="form-group">
+                    <label for="direccion">Dirección Exacta / Punto de Referencia:</label>
+                    <textarea id="direccion" rows="3" required placeholder="Ej. Urbanización Central, Calle 3, Casa Nro. 14, frente a la plaza" onchange="guardarDatosCliente()"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="pago">Método de Pago Preferido:</label>
+                    <select id="pago" required>
+                        <option value="Pago Móvil">Pago Móvil</option>
+                        <option value="Efectivo (USD)">Efectivo (USD)</option>
+                        <option value="Zelle">Zelle</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="notas">Instrucciones Especiales / Adicionales (Opcional):</label>
+                    <input type="text" id="notas" placeholder="Ej. Sin cebolla / Con salsas extra / Traer cambio de $20">
+                </div>
+
+                <button type="submit" class="btn-submit">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" style="display:inline; vertical-align:middle;">
+                        <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.455L0 24zm6.59-4.846c1.665.989 3.3 1.503 4.94 1.505 5.548 0 10.051-4.505 10.054-10.059a9.923 9.923 0 0 0-2.94-7.113c-1.92-1.92-4.47-2.978-7.182-2.98-5.556 0-10.058 4.507-10.06 10.063-.001 1.83.49 3.614 1.42 5.178l-.98 3.58 3.682-.966zm10.743-6.52c-.3-.15-1.77-.875-2.043-.974-.275-.1-.475-.15-.675.15s-.77.974-.945 1.173c-.175.2-.35.225-.65.075-1.53-.762-2.527-1.332-3.348-2.738-.21-.36.21-.334.6-.112.35.2.77.175.9.15.15-.025.35-.15.4-.3.05-.15.05-.275-.025-.425-.075-.15-.675-1.625-.925-2.225-.244-.588-.493-.508-.675-.518-.175-.01-.375-.01-.575-.01s-.525.075-.8.375c-.275.3-1.05 1.025-1.05 2.5s1.075 2.9 1.225 3.1c.15.2 2.11 3.22 5.11 4.52.714.31 1.27.495 1.704.633.717.227 1.37.195 1.885.118.575-.085 1.77-.724 2.02-1.388.25-.664.25-1.233.175-1.35-.075-.118-.275-.19-.575-.34z"/>
+                    </svg> 
+                    Confirmar Pedido por WhatsApp
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- BARRA FLOTANTE -->
+    <div class="floating-cart-bar" id="barra-flotante" onclick="irAlFormulario()">
+        <div class="floating-info">
+            <span>🛒</span>
+            <div>
+                <strong id="float-cantidad">0 productos</strong>
+                <div style="color: var(--secondary); font-size: 0.9rem; font-weight: 800;">Total: $<span id="float-total">0.00</span></div>
+            </div>
+        </div>
+        <div class="floating-btn">Completar Datos ➔</div>
+    </div>
+
+    <script>
+        const TELEFONO_NEGOCIO = "584129839786"; 
+        const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRpMAm5psU5IcVNkbLXtZa0hpaU9nm6WtkAuk89Jb4K8SZkAC26JeJ__1hy5LVvA67YUkoHppYA2FM5/pub?output=csv"; 
+
+        // Menú base por si falla la conexión de internet momentáneamente
+        let productos = [
+            { id: 0, categoria: "Hamburguesas", nombre: "Ana Clásica", descripcion: "Carne artesanal de la casa, queso cheddar derretido, lechuga fresh, rodajas de tomate y salsas de la casa.", precio: 5.00, badge: "Popular", claseBorde: "border-hamburguesas" }
+        ];
+
+        let carrito = [];
+        let total = 0;
+
+        window.onload = function() {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('sw.js').catch(err => console.error(err));
+            }
+            if(localStorage.getItem('delivery_nombre')) document.getElementById('nombre').value = localStorage.getItem('delivery_nombre');
+            if(localStorage.getItem('delivery_direccion')) document.getElementById('direccion').value = localStorage.getItem('delivery_direccion');
+            inicializarApp();
+        };
+
+        async function inicializarApp() {
+            if (GOOGLE_SHEET_CSV_URL && GOOGLE_SHEET_CSV_URL.trim() !== "") {
+                try {
+                    const cacheBuster = (GOOGLE_SHEET_CSV_URL.includes('?') ? '&' : '?') + 't=' + new Date().getTime();
+                    const response = await fetch(GOOGLE_SHEET_CSV_URL + cacheBuster);
+                    const text = await response.text();
+                    productos = parsearCSV(text);
+                } catch (error) {
+                    console.error("Usando el menú interno por defecto.", error);
+                }
+            }
+            renderizarMenuYNav();
+        }
+
+        function parsearCSV(textoCSV) {
+            const lineas = textoCSV.split("\n");
+            const listaProductos = [];
+            let idCounter = 0;
+
+            if (lineas.length <= 1) return productos;
+
+            const primeraLinea = lineas[0];
+            const separador = primeraLinea.includes(";") ? ";" : ",";
+
+            for (let i = 1; i < lineas.length; i++) {
+                const linea = lineas[i].trim();
+                if (!linea) continue;
+
+                let columnas = linea.split(new RegExp(`${separador}(?=(?:(?:[^"]*"){2})*[^"]*$)`));
+
+                if (columnas.length >= 4) {
+                    const categoria = columnas[0].replace(/"/g, '').trim();
+                    const nombre = columnas[1].replace(/"/g, '').trim();
+                    const descripcion = columnas[2].replace(/"/g, '').trim();
+                    const precio = parseFloat(columnas[3].replace(/"/g, '').replace(',', '.').trim()) || 0;
+                    const badge = columnas[4] ? columnas[4].replace(/"/g, '').trim() : "";
+
+                    let claseBorde = "border-hamburguesas";
+                    const catMin = categoria.toLowerCase();
+                    if (catMin.includes("burguer") || catMin.includes("hamburguesa")) claseBorde = "border-hamburguesas";
+                    else if (catMin.includes("perro") || catMin.includes("hot")) claseBorde = "border-perros";
+                    else if (catMin.includes("racion") || catMin.includes("papa")) claseBorde = "border-raciones";
+                    else if (catMin.includes("bebida") || catMin.includes("refresco")) claseBorde = "border-bebidas";
+
+                    listaProductos.push({ id: idCounter++, categoria, nombre, descripcion, precio, badge, claseBorde });
+                }
+            }
+            return listaProductos.length > 0 ? listaProductos : productos;
+        }
+
+        function renderizarMenuYNav() {
+            const menuContainer = document.getElementById('menu-container');
+            const navContainer = document.getElementById('categories-nav');
+            if(!menuContainer || !navContainer) return;
+
+            menuContainer.innerHTML = ''; navContainer.innerHTML = '';
+            const categoriesUnicas = [...new Set(productos.map(p => p.categoria))];
+            const emojisCat = { "Hamburguesas": "🍔", "Perros Calientes": "🌭", "Raciones": "🍟", "Bebidas": "🥤" };
+
+            categoriesUnicas.forEach(cat => {
+                const idSanitizado = `cat-${cat.toLowerCase().replace(/[^a-z0-9]/g, '')}`;
+                navContainer.innerHTML += `<a href="#${idSanitizado}" class="cat-btn"><span>${emojisCat[cat] || "🔥"}</span>${cat}</a>`;
+                menuContainer.innerHTML += `<h2 class="section-title" id="${idSanitizado}">${cat}</h2>`;
+
+                productos.filter(p => p.categoria === cat).forEach(prod => {
+                    const badgeHTML = prod.badge ? `<span class="badge ${prod.badge.toLowerCase().includes('brutal') || prod.badge.toLowerCase().includes('premium') ? 'badge-hot' : 'badge-star'}">${prod.badge}</span>` : '';
+                    
+                    menuContainer.innerHTML += `
+                        <div class="menu-item ${prod.claseBorde}">
+                            <div class="item-info">
+                                <div class="item-title-row"><h3>${prod.nombre}</h3>${badgeHTML}</div>
+                                <p>${prod.descripcion}</p>
+                                <span class="price">$${prod.precio.toFixed(2)}</span>
+                            </div>
+                            <div class="item-actions">
+                                <button class="btn-add-circle" id="btn-init-${prod.id}" onclick="modificarDesdeMenu('${prod.nombre}', ${prod.precio}, 'mas', ${prod.id})">+</button>
+                                <div class="quantity-selector" id="selector-${prod.id}">
+                                    <button onclick="modificarDesdeMenu('${prod.nombre}', ${prod.precio}, 'menos', ${prod.id})">-</button>
+                                    <span class="quantity-value" id="val-${prod.id}">1</span>
+                                    <button onclick="modificarDesdeMenu('${prod.nombre}', ${prod.precio}, 'mas', ${prod.id})">+</button>
+                                </div>
+                            </div>
+                        </div>`;
+                });
+            });
+            actualizarInterfazCarrito();
+        }
+
+        function modificarDesdeMenu(producto, precio, accion, idIndex) {
+            const existe = carrito.find(item => item.producto === producto);
+            const btnInit = document.getElementById(`btn-init-${idIndex}`);
+            const selector = document.getElementById(`selector-${idIndex}`);
+            const valSpan = document.getElementById(`val-${idIndex}`);
+
+            if (accion === 'mas') {
+                if (existe) {
+                    existe.cantidad++;
+                    if(valSpan) valSpan.innerText = existe.cantidad;
+                } else {
+                    carrito.push({ producto, precio: parseFloat(precio), cantidad: 1, idIndex: idIndex });
+                    if(btnInit && selector) { btnInit.style.display = 'none'; selector.style.display = 'flex'; valSpan.innerText = 1; }
+                }
+            } else if (accion === 'menos') {
+                if (existe) {
+                    existe.cantidad--;
+                    if (existe.cantidad === 0) {
+                        carrito = carrito.filter(i => i.producto !== producto);
+                        if(selector && btnInit) { selector.style.display = 'none'; btnInit.style.display = 'flex'; }
+                    } else {
+                        if(valSpan) valSpan.innerText = existe.cantidad;
+                    }
+                }
+            }
+            actualizarInterfazCarrito();
+        }
+
+        function cambiarCantidad(producto, accion) {
+            const item = carrito.find(item => item.producto === producto);
+            if (item) modificarDesdeMenu(producto, item.precio, accion, item.idIndex);
+        }
+
+        function actualizarInterfazCarrito() {
+            const listaHTML = document.getElementById('lista-carrito');
+            const vacioTxt = document.getElementById('carrito-vacio');
+            const totalTxt = document.getElementById('total-pago');
+            const barraFlotante = document.getElementById('barra-flotante');
+            const floatCantidad = document.getElementById('float-cantidad');
+            const floatTotal = document.getElementById('float-total');
+            
+            if(!listaHTML) return;
+            listaHTML.innerHTML = ''; total = 0; let totalUnidades = 0;
+
+            if (carrito.length === 0) {
+                vacioTxt.style.display = 'block'; totalTxt.innerText = '0.00'; barraFlotante.classList.remove('active');
+                return;
+            }
+
+            vacioTxt.style.display = 'none';
+            carrito.forEach(item => {
+                total += item.precio * item.cantidad;
+                totalUnidades += item.cantidad;
+                listaHTML.innerHTML += `
+                    <div class="cart-item">
+                        <div><strong>${item.producto}</strong><br><span style="color: var(--primary); font-size:0.9rem; font-weight:700;">$${item.precio.toFixed(2)} c/u</span></div>
+                        <div class="cart-item-controls">
+                            <button onclick="cambiarCantidad('${item.producto}', 'menos')">-</button>
+                            <span style="margin: 0 10px; font-weight:800;">${item.cantidad}</span>
+                            <button onclick="cambiarCantidad('${item.producto}', 'mas')">+</button>
+                        </div>
+                    </div>`;
+            });
+
+            totalTxt.innerText = total.toFixed(2);
+            floatCantidad.innerText = `${totalUnidades} ${totalUnidades === 1 ? 'producto' : 'productos'}`;
+            floatTotal.innerText = total.toFixed(2);
+            barraFlotante.classList.add('active');
+        }
+
+        function irAlFormulario() { document.getElementById('seccion-formulario').scrollIntoView(); }
+        function guardarDatosCliente() {
+            localStorage.setItem('delivery_nombre', document.getElementById('nombre').value);
+            localStorage.setItem('delivery_direccion', document.getElementById('direccion').value);
+        }
+
+        function enviarPedido(event) {
+            event.preventDefault();
+            if (carrito.length === 0) { alert("Por favor, agrega productos al carrito."); return; }
+
+            const nombre = document.getElementById('nombre').value;
+            const direccion = document.getElementById('direccion').value;
+            const pago = document.getElementById('pago').value;
+            const notas = document.getElementById('notas').value || "Ninguna";
+
+            let mensaje = `🍔 *NUEVO PEDIDO - ANA BURGER* 🍔\n\n`;
+            mensaje += `👤 *Cliente:* ${nombre}\n📍 *Dirección:* ${direccion}\n💳 *Método de Pago:* ${pago}\n📝 *Notas:* ${notas}\n\n🛒 *Detalle del Pedido:*\n`;
+            carrito.forEach(item => { mensaje += `• ${item.cantidad}x ${item.producto} ($${(item.precio * item.cantidad).toFixed(2)})\n`; });
+            mensaje += `\n💰 *TOTAL A PAGAR: $${total.toFixed(2)}*`;
+
+            window.location.replace(`https://wa.me/${TELEFONO_NEGOCIO}?text=${encodeURIComponent(mensaje)}`);
+        }
+    </script>
+</body>
+</html>
